@@ -1,6 +1,6 @@
 package models
 
 type StashItem struct {
-	Name string
-	ID   int
+	Name string `json:"name"`
+	ID   int    `json:"id"`
 }
