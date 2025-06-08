@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ja-howell/stashclone/models"
+	"github.com/ja-howell/stashclone/database"
 )
 
 func main() {
@@ -15,11 +15,14 @@ func main() {
 }
 
 func getStashItem(w http.ResponseWriter, r *http.Request) {
-	si := models.StashItem{
-		Name: "foo",
-		ID:   1,
+	db := database.Database{}
+	si, err := db.GetStashItem(0)
+	if err != nil {
+		log.Printf("Failed to get stash item: %v", err)
+		return
 	}
-	err := json.NewEncoder(w).Encode(si)
+
+	err = json.NewEncoder(w).Encode(si)
 	if err != nil {
 		log.Printf("Failed to encode: %v", err)
 	}
