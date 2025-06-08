@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/ja-howell/stashclone/models"
 )
 
@@ -8,11 +10,16 @@ type Database struct {
 	rows []models.StashItem
 }
 
-func (db *Database) GetStashItem(id int) (models.StashItem, error) {
-	si := models.StashItem{
-		Name: "foo",
-		ID:   1,
-	}
+func New(data []models.StashItem) *Database {
+	db := &Database{rows: data}
 
-	return si, nil
+	return db
+}
+
+func (db *Database) GetStashItem(id int) (models.StashItem, error) {
+	if id < 0 || id >= len(db.rows) {
+		err := fmt.Errorf("invalid ID: %v", id)
+		return models.StashItem{}, err
+	}
+	return db.rows[id], nil
 }

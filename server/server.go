@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/ja-howell/stashclone/database"
 )
@@ -26,7 +27,13 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
-	si, err := s.db.GetStashItem(0)
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		log.Printf("Invalid ID: %v", err)
+		return
+	}
+
+	si, err := s.db.GetStashItem(id)
 	if err != nil {
 		log.Printf("Failed to get stash item: %v", err)
 		return
@@ -36,4 +43,8 @@ func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Failed to encode: %v", err)
 	}
+}
+
+func (s *Server) createStashItem(w http.ResponseWriter, r *http.Request) {
+
 }
