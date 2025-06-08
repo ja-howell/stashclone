@@ -13,16 +13,16 @@ type Server struct {
 	mux *http.ServeMux
 }
 
-func New() Server {
+func New(db *database.Database) Server {
 	s := Server{}
-	s.db = &database.Database{}
+	s.db = db
 	s.mux = http.NewServeMux()
 	s.mux.HandleFunc("GET /stashitems/{id}", s.getStashItem)
 	return s
 }
 
-func (s *Server) Start() {
-	log.Fatal(http.ListenAndServe(":8080", s.mux))
+func (s *Server) Run() error {
+	return http.ListenAndServe(":8080", s.mux)
 }
 
 func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
