@@ -29,3 +29,12 @@ func (db *Database) CreateStashItem(si models.StashItem) error {
 	db.rows = append(db.rows, si)
 	return nil
 }
+
+func (db *Database) UpdateStashItem(id int, si models.StashItem) error {
+	if id < 0 || id >= len(db.rows) {
+		err := fmt.Errorf("invalid ID: %v", si.ID)
+		return err
+	}
+	db.rows[id].Name = si.Name
+	return nil
+}

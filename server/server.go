@@ -21,6 +21,7 @@ func New(db *database.Database) Server {
 	s.mux = http.NewServeMux()
 	s.mux.HandleFunc("GET /stashitems/{id}", s.getStashItem)
 	s.mux.HandleFunc("POST /stashitems", s.createStashItem)
+	s.mux.HandleFunc("PUT /stashitems/{id}", s.updateStashItem)
 	return s
 }
 
@@ -68,4 +69,32 @@ func (s *Server) createStashItem(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Created stash item: %v", http.StatusAccepted)
 	w.WriteHeader(http.StatusAccepted)
+}
+
+func (s *Server) updateStashItem(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		log.Printf("Invalid ID: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	si := models.StashItem{}
+	err = json.NewDecoder(r.Body).Decode(&si)
+	if err != nil {
+		log.Printf("Failed to update stash item: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = s.db.UpdateStashItem(id, si)
+	if err != nil {
+		log.Printf("Failed to save updated stash item to database: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Updated stash item: %v", http.StatusAccepted)
+	w.WriteHeader(http.StatusAccepted)
+
 }
