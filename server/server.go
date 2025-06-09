@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/ja-howell/stashclone/database"
+	"github.com/ja-howell/stashclone/models"
 )
 
 type Server struct {
@@ -19,6 +20,7 @@ func New(db *database.Database) Server {
 	s.db = db
 	s.mux = http.NewServeMux()
 	s.mux.HandleFunc("GET /stashitems/{id}", s.getStashItem)
+	s.mux.HandleFunc("POST /stashitems", s.createStashItem)
 	return s
 }
 
@@ -46,5 +48,15 @@ func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) createStashItem(w http.ResponseWriter, r *http.Request) {
+	si := models.StashItem{}
+	err := json.NewDecoder(r.Body).Decode(&si)
+	if err != nil {
+		log.Printf("Failed to create stash item: %v", err)
+	}
+
+	err = s.db.CreateStashItem(si)
+	if err != nil {
+		log.Printf("Failed to save stash item to database: %v", err)
+	}
 
 }

@@ -23,3 +23,9 @@ func (db *Database) GetStashItem(id int) (models.StashItem, error) {
 	}
 	return db.rows[id], nil
 }
+
+func (db *Database) CreateStashItem(si models.StashItem) error {
+	si.ID = len(db.rows)
+	db.rows = append(db.rows, si)
+	return nil
+}
