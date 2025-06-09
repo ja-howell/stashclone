@@ -32,19 +32,24 @@ func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		log.Printf("Invalid ID: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	si, err := s.db.GetStashItem(id)
 	if err != nil {
 		log.Printf("Failed to get stash item: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(si)
 	if err != nil {
 		log.Printf("Failed to encode: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
+
 }
 
 func (s *Server) createStashItem(w http.ResponseWriter, r *http.Request) {
@@ -52,11 +57,15 @@ func (s *Server) createStashItem(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&si)
 	if err != nil {
 		log.Printf("Failed to create stash item: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
 	err = s.db.CreateStashItem(si)
 	if err != nil {
 		log.Printf("Failed to save stash item to database: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 
+	log.Printf("Created stash item: %v", http.StatusAccepted)
+	w.WriteHeader(http.StatusAccepted)
 }
