@@ -20,6 +20,7 @@ func New(db *database.Database) Server {
 	s.db = db
 	s.mux = http.NewServeMux()
 	s.mux.HandleFunc("GET /stashitems/{id}", s.getStashItem)
+	s.mux.HandleFunc("GET /stashitems", s.getAllStashItems)
 	s.mux.HandleFunc("POST /stashitems", s.createStashItem)
 	s.mux.HandleFunc("PUT /stashitems/{id}", s.updateStashItem)
 	return s
@@ -53,6 +54,24 @@ func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (s *Server) getAllStashItems(w http.ResponseWriter, r *http.Request) {
+
+	sis, err := s.db.GetAllStashItems()
+	if err != nil {
+		log.Printf("Failed to get stash items: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(sis)
+	if err != nil {
+		log.Printf("Failed to encode: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+}
+
 func (s *Server) createStashItem(w http.ResponseWriter, r *http.Request) {
 	si := models.StashItem{}
 	err := json.NewDecoder(r.Body).Decode(&si)
@@ -70,6 +89,8 @@ func (s *Server) createStashItem(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Created stash item: %v", http.StatusAccepted)
 	w.WriteHeader(http.StatusAccepted)
 }
+
+//TODO: look up http.Error()
 
 func (s *Server) updateStashItem(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))

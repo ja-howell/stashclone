@@ -29,7 +29,11 @@ func (db *Database) GetStashItem(id int) (models.StashItem, error) {
 	return db.rows[id], nil
 }
 
-// TODO: func GetAllStashItems
+func (db *Database) GetAllStashItems() (map[int]models.StashItem, error) {
+
+	return db.rows, nil
+}
+
 // TODO: func DeleteStashItem
 
 func (db *Database) CreateStashItem(si models.StashItem) error {
