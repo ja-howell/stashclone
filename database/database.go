@@ -7,34 +7,44 @@ import (
 )
 
 type Database struct {
-	rows []models.StashItem
+	nextIndex int
+	rows      map[int]models.StashItem
 }
 
-func New(data []models.StashItem) *Database {
-	db := &Database{rows: data}
+func New(data map[int]models.StashItem) *Database {
+	db := &Database{
+		nextIndex: len(data),
+		rows:      data,
+	}
 
 	return db
 }
 
 func (db *Database) GetStashItem(id int) (models.StashItem, error) {
-	if id < 0 || id >= len(db.rows) {
+	if _, ok := db.rows[id]; !ok {
 		err := fmt.Errorf("invalid ID: %v", id)
 		return models.StashItem{}, err
 	}
+
 	return db.rows[id], nil
 }
 
+// TODO: func GetAllStashItems
+// TODO: func DeleteStashItem
+
 func (db *Database) CreateStashItem(si models.StashItem) error {
-	si.ID = len(db.rows)
-	db.rows = append(db.rows, si)
+	si.ID = db.nextIndex
+	db.nextIndex++
+	db.rows[si.ID] = si
 	return nil
 }
 
 func (db *Database) UpdateStashItem(id int, si models.StashItem) error {
-	if id < 0 || id >= len(db.rows) {
-		err := fmt.Errorf("invalid ID: %v", si.ID)
+	if _, ok := db.rows[id]; !ok {
+		err := fmt.Errorf("invalid ID: %v", id)
 		return err
 	}
-	db.rows[id].Name = si.Name
+
+	db.rows[id] = si
 	return nil
 }

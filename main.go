@@ -13,7 +13,9 @@ func main() {
 		Name: "foo",
 		ID:   0,
 	}
-	db := database.New([]models.StashItem{si})
+	db := database.New(map[int]models.StashItem{
+		0: si,
+	})
 	s := server.New(db)
 	err := s.Run()
 	if err != nil {
