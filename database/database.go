@@ -30,11 +30,18 @@ func (db *Database) GetStashItem(id int) (models.StashItem, error) {
 }
 
 func (db *Database) GetAllStashItems() (map[int]models.StashItem, error) {
-
 	return db.rows, nil
 }
 
 // TODO: func DeleteStashItem
+func (db *Database) DeleteStashItem(id int) error {
+	if _, ok := db.rows[id]; !ok {
+		err := fmt.Errorf("invalid ID: %v", id)
+		return err
+	}
+	delete(db.rows, id)
+	return nil
+}
 
 func (db *Database) CreateStashItem(si models.StashItem) error {
 	si.ID = db.nextIndex

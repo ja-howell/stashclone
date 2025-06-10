@@ -23,6 +23,8 @@ func New(db *database.Database) Server {
 	s.mux.HandleFunc("GET /stashitems", s.getAllStashItems)
 	s.mux.HandleFunc("POST /stashitems", s.createStashItem)
 	s.mux.HandleFunc("PUT /stashitems/{id}", s.updateStashItem)
+	s.mux.HandleFunc("DELETE /stashitems/{id}", s.deleteStashItem)
+
 	return s
 }
 
@@ -118,4 +120,22 @@ func (s *Server) updateStashItem(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Updated stash item: %v", http.StatusAccepted)
 	w.WriteHeader(http.StatusAccepted)
 
+}
+
+func (s *Server) deleteStashItem(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		log.Printf("Invalid ID: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = s.db.DeleteStashItem(id)
+	if err != nil {
+		log.Printf("Failed to delete stash item: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Deleted stash item %d: %v", id, http.StatusAccepted)
 }
