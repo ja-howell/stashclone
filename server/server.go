@@ -1,29 +1,29 @@
 package server
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/ja-howell/stashclone/database"
 	"github.com/ja-howell/stashclone/models"
 )
 
 type Server struct {
-	db  *database.Database
+	db  *sql.DB
 	mux *http.ServeMux
 }
 
-func New(db *database.Database) Server {
+func New(db *sql.DB) Server {
 	s := Server{}
 	s.db = db
 	s.mux = http.NewServeMux()
 	s.mux.HandleFunc("GET /stashitems/{id}", s.getStashItem)
-	s.mux.HandleFunc("GET /stashitems", s.getAllStashItems)
-	s.mux.HandleFunc("POST /stashitems", s.createStashItem)
-	s.mux.HandleFunc("PUT /stashitems/{id}", s.updateStashItem)
-	s.mux.HandleFunc("DELETE /stashitems/{id}", s.deleteStashItem)
+	// s.mux.HandleFunc("GET /stashitems", s.getAllStashItems)
+	// s.mux.HandleFunc("POST /stashitems", s.createStashItem)
+	// s.mux.HandleFunc("PUT /stashitems/{id}", s.updateStashItem)
+	// s.mux.HandleFunc("DELETE /stashitems/{id}", s.deleteStashItem)
 
 	return s
 }
@@ -39,11 +39,20 @@ func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	si, err := s.db.GetStashItem(id)
+	var si models.StashItem
+	// si, err := s.db.GetStashItem(id)
+	row := s.db.QueryRow("SELECT * FROM stashitems WHERE id = ?", id)
+	// if err != nil {
+	// 	log.Printf("Failed to get stash item: %v", err)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
+	err = row.Scan(&si.ID, &si.Name, &si.Type)
 	if err != nil {
-		log.Printf("Failed to get stash item: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
+		if err == sql.ErrNoRows {
+			log.Printf("Failed to get stash item: %v", err)
+			return
+		}
 		return
 	}
 
@@ -56,86 +65,86 @@ func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) getAllStashItems(w http.ResponseWriter, r *http.Request) {
+// func (s *Server) getAllStashItems(w http.ResponseWriter, r *http.Request) {
 
-	sis, err := s.db.GetAllStashItems()
-	if err != nil {
-		log.Printf("Failed to get stash items: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+// 	sis, err := s.db.GetAllStashItems()
+// 	if err != nil {
+// 		log.Printf("Failed to get stash items: %v", err)
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(sis)
-	if err != nil {
-		log.Printf("Failed to encode: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+// 	w.Header().Set("Content-Type", "application/json")
+// 	err = json.NewEncoder(w).Encode(sis)
+// 	if err != nil {
+// 		log.Printf("Failed to encode: %v", err)
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 	}
 
-}
+// }
 
-func (s *Server) createStashItem(w http.ResponseWriter, r *http.Request) {
-	si := models.StashItem{}
-	err := json.NewDecoder(r.Body).Decode(&si)
-	if err != nil {
-		log.Printf("Failed to create stash item: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-	}
+// func (s *Server) createStashItem(w http.ResponseWriter, r *http.Request) {
+// 	si := models.StashItem{}
+// 	err := json.NewDecoder(r.Body).Decode(&si)
+// 	if err != nil {
+// 		log.Printf("Failed to create stash item: %v", err)
+// 		w.WriteHeader(http.StatusBadRequest)
+// 	}
 
-	err = s.db.CreateStashItem(si)
-	if err != nil {
-		log.Printf("Failed to save stash item to database: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+// 	err = s.db.CreateStashItem(si)
+// 	if err != nil {
+// 		log.Printf("Failed to save stash item to database: %v", err)
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 	}
 
-	log.Printf("Created stash item: %v", http.StatusAccepted)
-	w.WriteHeader(http.StatusAccepted)
-}
+// 	log.Printf("Created stash item: %v", http.StatusAccepted)
+// 	w.WriteHeader(http.StatusAccepted)
+// }
 
-//TODO: look up http.Error()
+// //TODO: look up http.Error()
 
-func (s *Server) updateStashItem(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		log.Printf("Invalid ID: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+// func (s *Server) updateStashItem(w http.ResponseWriter, r *http.Request) {
+// 	id, err := strconv.Atoi(r.PathValue("id"))
+// 	if err != nil {
+// 		log.Printf("Invalid ID: %v", err)
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
 
-	si := models.StashItem{}
-	err = json.NewDecoder(r.Body).Decode(&si)
-	if err != nil {
-		log.Printf("Failed to update stash item: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+// 	si := models.StashItem{}
+// 	err = json.NewDecoder(r.Body).Decode(&si)
+// 	if err != nil {
+// 		log.Printf("Failed to update stash item: %v", err)
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
 
-	err = s.db.UpdateStashItem(id, si)
-	if err != nil {
-		log.Printf("Failed to save updated stash item to database: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+// 	err = s.db.UpdateStashItem(id, si)
+// 	if err != nil {
+// 		log.Printf("Failed to save updated stash item to database: %v", err)
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		return
+// 	}
 
-	log.Printf("Updated stash item: %v", http.StatusAccepted)
-	w.WriteHeader(http.StatusAccepted)
+// 	log.Printf("Updated stash item: %v", http.StatusAccepted)
+// 	w.WriteHeader(http.StatusAccepted)
 
-}
+// }
 
-func (s *Server) deleteStashItem(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		log.Printf("Invalid ID: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+// func (s *Server) deleteStashItem(w http.ResponseWriter, r *http.Request) {
+// 	id, err := strconv.Atoi(r.PathValue("id"))
+// 	if err != nil {
+// 		log.Printf("Invalid ID: %v", err)
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
 
-	err = s.db.DeleteStashItem(id)
-	if err != nil {
-		log.Printf("Failed to delete stash item: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+// 	err = s.db.DeleteStashItem(id)
+// 	if err != nil {
+// 		log.Printf("Failed to delete stash item: %v", err)
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		return
+// 	}
 
-	log.Printf("Deleted stash item %d: %v", id, http.StatusAccepted)
-}
+// 	log.Printf("Deleted stash item %d: %v", id, http.StatusAccepted)
+// }
