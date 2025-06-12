@@ -6,13 +6,13 @@ import (
 	"github.com/ja-howell/stashclone/models"
 )
 
-type Database struct {
+type Mock struct {
 	nextIndex int
 	rows      map[int]models.StashItem
 }
 
-func New(data map[int]models.StashItem) *Database {
-	db := &Database{
+func NewMock(data map[int]models.StashItem) *Mock {
+	db := &Mock{
 		nextIndex: len(data),
 		rows:      data,
 	}
@@ -20,7 +20,7 @@ func New(data map[int]models.StashItem) *Database {
 	return db
 }
 
-func (db *Database) GetStashItem(id int) (models.StashItem, error) {
+func (db *Mock) GetStashItem(id int) (models.StashItem, error) {
 	if _, ok := db.rows[id]; !ok {
 		err := fmt.Errorf("invalid ID: %v", id)
 		return models.StashItem{}, err
@@ -29,12 +29,12 @@ func (db *Database) GetStashItem(id int) (models.StashItem, error) {
 	return db.rows[id], nil
 }
 
-func (db *Database) GetAllStashItems() (map[int]models.StashItem, error) {
+func (db *Mock) GetAllStashItems() (map[int]models.StashItem, error) {
 	return db.rows, nil
 }
 
 // TODO: func DeleteStashItem
-func (db *Database) DeleteStashItem(id int) error {
+func (db *Mock) DeleteStashItem(id int) error {
 	if _, ok := db.rows[id]; !ok {
 		err := fmt.Errorf("invalid ID: %v", id)
 		return err
@@ -43,14 +43,14 @@ func (db *Database) DeleteStashItem(id int) error {
 	return nil
 }
 
-func (db *Database) CreateStashItem(si models.StashItem) error {
+func (db *Mock) CreateStashItem(si models.StashItem) error {
 	si.ID = db.nextIndex
 	db.nextIndex++
 	db.rows[si.ID] = si
 	return nil
 }
 
-func (db *Database) UpdateStashItem(id int, si models.StashItem) error {
+func (db *Mock) UpdateStashItem(id int, si models.StashItem) error {
 	if _, ok := db.rows[id]; !ok {
 		err := fmt.Errorf("invalid ID: %v", id)
 		return err
