@@ -11,11 +11,11 @@ import (
 )
 
 type Server struct {
-	db  *sql.DB
+	db  Database
 	mux *http.ServeMux
 }
 
-func New(db *sql.DB) Server {
+func New(db Database) Server {
 	s := Server{}
 	s.db = db
 	s.mux = http.NewServeMux()
