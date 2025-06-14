@@ -8,14 +8,28 @@ GO_PID=$!  # Capture the process ID (PID) of the Go program
 sleep 2  
 
 # Perform API requests
-curl localhost:8080/stashitems/0 -v | jq
-curl -X POST -H "Content-Type: application/json" -d '{"name": "baz"}' localhost:8080/stashitems -v
+echo "Expect ID 1"
+echo
 curl localhost:8080/stashitems/1 -v | jq
-curl -X PUT "http://localhost:8080/stashitems/0" -H "Content-Type: application/json" -d '{"id":1, "name":"Updated Item"}'
-curl localhost:8080/stashitems/0 -v | jq
+echo
+
+# curl -X POST -H "Content-Type: application/json" -d '{"name": "baz"}' localhost:8080/stashitems -v
+
+echo "Expect ID 3"
+echo
+curl localhost:8080/stashitems/3 -v | jq
+echo
+
+# curl -X PUT "http://localhost:8080/stashitems/1" -H "Content-Type: application/json" -d '{"id":1, "name":"Updated Item"}'
+# curl localhost:8080/stashitems/2 -v | jq
+
+echo "Expect All IDs"
+echo
 curl localhost:8080/stashitems -v | jq
-curl -X DELETE "http://localhost:8080/stashitems/0"
-curl localhost:8080/stashitems -v | jq
+echo
+
+# curl -X DELETE "http://localhost:8080/stashitems/1"
+# curl localhost:8080/stashitems -v | jq
 
 
 # # Stop the Go application

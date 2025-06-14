@@ -19,7 +19,7 @@ func New(db Database) Server {
 	s.db = db
 	s.mux = http.NewServeMux()
 	s.mux.HandleFunc("GET /stashitems/{id}", s.getStashItem)
-	s.mux.HandleFunc("GET /stashitems", s.getAllStashItems)
+	s.mux.HandleFunc("GET /stashitems", s.listStashItems)
 	s.mux.HandleFunc("POST /stashitems", s.createStashItem)
 	s.mux.HandleFunc("PUT /stashitems/{id}", s.updateStashItem)
 	s.mux.HandleFunc("DELETE /stashitems/{id}", s.deleteStashItem)
@@ -53,9 +53,9 @@ func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (s *Server) getAllStashItems(w http.ResponseWriter, r *http.Request) {
+func (s *Server) listStashItems(w http.ResponseWriter, r *http.Request) {
 
-	sis, err := s.db.GetAllStashItems()
+	sis, err := s.db.ListStashItems()
 	if err != nil {
 		log.Printf("Failed to get stash items: %v", err)
 		w.WriteHeader(http.StatusBadRequest)

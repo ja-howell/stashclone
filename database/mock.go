@@ -29,8 +29,12 @@ func (db *Mock) GetStashItem(id int) (models.StashItem, error) {
 	return db.rows[id], nil
 }
 
-func (db *Mock) GetAllStashItems() (map[int]models.StashItem, error) {
-	return db.rows, nil
+func (db *Mock) ListStashItems() ([]models.StashItem, error) {
+	sis := []models.StashItem{}
+	for _, si := range db.rows {
+		sis = append(sis, si)
+	}
+	return sis, nil
 }
 
 // TODO: func DeleteStashItem

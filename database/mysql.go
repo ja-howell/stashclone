@@ -2,6 +2,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -33,8 +34,27 @@ func (db *MySQL) GetStashItem(id int) (models.StashItem, error) {
 	return si, nil
 }
 
-func (db *MySQL) GetAllStashItems() (map[int]models.StashItem, error) {
-	return nil, nil
+func (db *MySQL) ListStashItems() ([]models.StashItem, error) {
+	sis := []models.StashItem{}
+	rows, err := db.wrapped.QueryContext(context.TODO(), "SELECT * FROM stashitems")
+	if err != nil {
+		return nil, fmt.Errorf("failed to query: %w", err)
+	}
+
+	for rows.Next() {
+		var si models.StashItem
+		err := rows.Scan(&si.ID, &si.Name, &si.Type)
+		if err != nil {
+			return nil, fmt.Errorf("read failure: %w", err)
+		}
+		sis = append(sis, si)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get next row: %w", err)
+	}
+	return sis, nil
 }
 
 func (db *MySQL) DeleteStashItem(id int) error {
