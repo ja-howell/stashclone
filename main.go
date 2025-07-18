@@ -20,10 +20,14 @@ func main() {
 	cfg.Addr = "127.0.0.1:3306"
 	cfg.DBName = "stash"
 
+	if cfg.User == "" || cfg.Passwd == "" {
+		log.Fatal("DBUSER and DBPASS environment variables must be set")
+	}
+
 	// Get a database handle.
 	mysqldb, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to open db: %v", err)
 	}
 
 	pingErr := mysqldb.Ping()
