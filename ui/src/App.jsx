@@ -1,35 +1,84 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+// import { useState } from 'react'
+import { useEffect, useState } from 'react';
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const API_URL = 'http://localhost:8080/stashitems';
+const API_OPTIONS = {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
 
+const ItemCard = ({item}) => {
+  console.log("Rendering ItemCard for", item.name);
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="item-card">
+      <h3>Name: {item.item_name}</h3>
+      <p>Type: {item.item_type}</p>
+    </div>
   )
 }
+
+// const ItemCard = (props) => {
+//   console.log('ItemCard props:', props);
+//   const { item } = props;
+
+//   return (
+//     <div className="item-card">
+//       <h3>{item.name}</h3>
+//       <p>{item.type}</p>
+//     </div>
+//   );
+// };
+
+
+const App = () => {
+  const [items, setItems] = useState([]);
+  const fetchItems = async () => {
+    try {
+      const response = await fetch(API_URL, API_OPTIONS);
+      const data = await response.json();
+      console.log('Response:', response);
+      console.log('Data:', data);
+
+      setItems(data || []);
+      } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+  useEffect(() => {
+  console.log('Items updated:', items.length);
+}, [items]);
+
+
+  console.log("Rendering", items.length, "ItemCards");
+
+  return (
+    <main>
+      <div className="header">
+        <header>
+        <h1>Stash Clone</h1>
+        </header>
+
+        <section className="items">
+        <h2>Your Stash!</h2>
+          <div className="items-list">
+            {items.map((item, index) => (
+              console.log(`Item ${index}:`, item),
+              <ItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+
+  )
+}
+
 
 export default App
