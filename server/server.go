@@ -28,7 +28,24 @@ func New(db Database) Server {
 }
 
 func (s *Server) Run() error {
-	return http.ListenAndServe(":8080", s.mux)
+	return http.ListenAndServe(":8080", corsMiddleware(s.mux))
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Allow requests from your React frontend
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		// Respond to preflight requests
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (s *Server) getStashItem(w http.ResponseWriter, r *http.Request) {
