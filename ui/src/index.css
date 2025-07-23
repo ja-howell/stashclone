@@ -1,24 +1,5 @@
 @import "tailwindcss";
 
-/* @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
-
-  main {
-    @apply min-h-screen relative;
-  }
-
-  header {
-    @apply text-3xl font-bold text-center mb-8 underline;
-  }
-
-  .wrapper {
-    @apply px-5 py-12 max-w-7xl mx-auto flex flex-col relative z-10;
-  }
-
-  .item-card {
-    @apply p-5 rounded-2xl shadow-inner bg-teal-700 text-white mb-4 text-left;
-        
-    & ul {
-      @apply grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
-    }
-  }  */
+@theme {
+  --breakpoint-xs: 480px;
+}
