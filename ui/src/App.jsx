@@ -13,25 +13,12 @@ const API_OPTIONS = {
 const ItemCard = ({item}) => {
   console.log("Rendering ItemCard for", item.name);
   return (
-    <div className="item-card">
-      <h3>Name: {item.item_name}</h3>
-      <p>Type: {item.item_type}</p>
-    </div>
+<div className="item-card border border-gray-300 rounded-md p-4 bg-white shadow hover:shadow-md transition">
+  <h3 className="text-lg font-semibold mb-2">Name: {item.item_name}</h3>
+  <p className="text-gray-600">Type: {item.item_type}</p>
+</div>
   )
 }
-
-// const ItemCard = (props) => {
-//   console.log('ItemCard props:', props);
-//   const { item } = props;
-
-//   return (
-//     <div className="item-card">
-//       <h3>{item.name}</h3>
-//       <p>{item.type}</p>
-//     </div>
-//   );
-// };
-
 
 const App = () => {
   const [items, setItems] = useState([]);
@@ -65,16 +52,17 @@ const App = () => {
         <h1>Stash Clone</h1>
         </header>
 
-        <section className="items">
-        <h2>Your Stash!</h2>
-          <div className="items-list">
-            {items.map((item, index) => (
-              console.log(`Item ${index}:`, item),
-              <ItemCard key={item.id} item={item} />
-            ))}
-          </div>
-        </section>
       </div>
+      <section className="all-items">
+      <h2 className="text-xl font-bold mb-4">Your Stash!</h2>
+      <div className="item-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {items.map((item, index) => (
+          console.log(`Item ${index}:`, item),
+          <ItemCard key={item.id} item={item} />
+        ))}
+      </div>
+    </section>
+
     </main>
 
   )
