@@ -57,6 +57,12 @@ func (db *MySQL) ListStashItems() ([]models.StashItem, error) {
 	return sis, nil
 }
 
+// Return just the name and id for the landing page.
+func (db *MySQL) GetStashItemsFrontPage() ([]models.StashItem, error) {
+	// This method is not implemented yet.
+	return nil, fmt.Errorf("GetStashItemsFrontPage not implemented")
+}
+
 func (db *MySQL) DeleteStashItem(id int) error {
 	return nil
 }
